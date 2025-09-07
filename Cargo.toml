@@ -10,11 +10,10 @@ publish = false
 
 [dependencies]
 eframe = { version = "0.32.2", features = ["wgpu"] }
-
 egui_extras = { version = "0.32.2", features = ["default", "image"] }
-
 env_logger = { version = "0.11.8", default-features = false, features = [
     "auto-color",
     "humantime",
 ] }
 log = "0.4.28"
+rfd = "0.15.4"

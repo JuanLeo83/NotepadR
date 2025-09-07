@@ -1,7 +1,9 @@
+use crate::app_state::AppState;
+use crate::commands::save;
 use eframe::egui;
 use log::info;
 
-pub fn app_menu_topbar(ctx: &egui::Context, frame: &mut eframe::Frame) {
+pub fn app_menu_topbar(state: &mut AppState, ctx: &egui::Context, _frame: &mut eframe::Frame) {
     egui::TopBottomPanel::top("menu_topbar").show(ctx, |ui| {
         ui.horizontal(|ui| {
             ui.menu_button("Archivo", |ui| {
@@ -16,6 +18,7 @@ pub fn app_menu_topbar(ctx: &egui::Context, frame: &mut eframe::Frame) {
                 if ui.button("Guardar").clicked() {
                     // TODO: save current file
                     info!("Save file clicked");
+                    save(state)
                 }
             });
         });
