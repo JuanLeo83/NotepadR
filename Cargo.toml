@@ -1,7 +1,12 @@
 [package]
 name = "Notepad"
 version = "0.1.0"
+authors = ["Juan Leo"]
 edition = "2024"
+description = "A simple notepad application built with eframe and egui."
+license = "MIT"
+repository = "https://github.com/JuanLeo83/NotepadR"
+publish = false
 
 [dependencies]
 eframe = { version = "0.32.2", features = ["wgpu"] }
@@ -12,3 +17,4 @@ env_logger = { version = "0.11.8", default-features = false, features = [
     "auto-color",
     "humantime",
 ] }
+log = "0.4.28"

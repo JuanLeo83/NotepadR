@@ -1,4 +1,6 @@
 mod app_state;
+mod menu_topbar;
+mod content;
 
 fn main() -> eframe::Result {
     env_logger::init();
