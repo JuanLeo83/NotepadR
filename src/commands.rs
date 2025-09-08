@@ -3,6 +3,15 @@ use log::{error, info};
 use rfd::FileDialog;
 use std::fs;
 
+pub fn new_file(state: &mut AppState) {
+    state.current_content = String::new();
+    state.current_file_path = None;
+}
+
+pub fn open_file(state: &mut AppState) {
+    // TODO: pending implementation
+}
+
 pub fn save(state: &mut AppState) {
     if let Some(path) = &state.current_file_path {
         match fs::write(path, &state.current_content) {
