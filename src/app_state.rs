@@ -1,5 +1,6 @@
 use crate::content::app_content;
 use crate::menu_topbar::app_menu_topbar;
+use crate::shortcuts::shortcuts;
 use eframe::egui;
 use std::path::PathBuf;
 
@@ -36,6 +37,8 @@ impl eframe::App for AppState {
                     self.show_save_modal = true;
                 }
             }
+
+            shortcuts(ctx, self);
         });
     }
 }

@@ -22,7 +22,7 @@ pub fn app_menu_topbar(state: &mut AppState, ctx: &egui::Context, _frame: &mut e
     });
 }
 
-fn on_new_button_clicked(state: &mut AppState) {
+pub fn on_new_button_clicked(state: &mut AppState) {
     if state.has_unsaved_changes() {
         state.show_save_modal = true;
         state.pending_action = PendingAction::NewFile;
@@ -31,7 +31,7 @@ fn on_new_button_clicked(state: &mut AppState) {
     }
 }
 
-fn on_open_button_clicked(state: &mut AppState) {
+pub fn on_open_button_clicked(state: &mut AppState) {
     if state.has_unsaved_changes() {
         state.show_save_modal = true;
         state.pending_action = PendingAction::OpenFile;
@@ -40,6 +40,6 @@ fn on_open_button_clicked(state: &mut AppState) {
     }
 }
 
-fn on_save_button_clicked(state: &mut AppState) {
+pub fn on_save_button_clicked(state: &mut AppState) {
     save(state);
 }
