@@ -1,8 +1,14 @@
 use crate::app_state::{AppState, PendingAction};
 use crate::commands::{new_file, open_file, save};
+use crate::menu_topbar::app_menu_topbar;
 use eframe::egui;
 
-pub fn app_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+pub fn notepad_screen(state: &mut AppState, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    app_menu_topbar(state, ctx, frame);
+    notepad_content(state, ctx, frame);
+}
+
+fn notepad_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut eframe::Frame) {
     egui::CentralPanel::default().show(ctx, |ui| {
         egui::ScrollArea::both()
             .auto_shrink([false; 2])

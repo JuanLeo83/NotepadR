@@ -1,5 +1,4 @@
-use crate::content::app_content;
-use crate::menu_topbar::app_menu_topbar;
+use crate::navigator::{navigator, Screen};
 use crate::shortcuts::shortcuts;
 use eframe::egui;
 use std::path::PathBuf;
@@ -10,6 +9,7 @@ pub struct AppState {
     pub file_content: Option<String>,
     pub show_save_modal: bool,
     pub pending_action: PendingAction,
+    pub screen: Screen
 }
 
 impl Default for AppState {
@@ -20,6 +20,7 @@ impl Default for AppState {
             file_content: None,
             show_save_modal: false,
             pending_action: PendingAction::None,
+            screen: Screen::Notepad,
         }
     }
 }
@@ -27,8 +28,7 @@ impl Default for AppState {
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |_ui| {
-            app_menu_topbar(self, ctx, frame);
-            app_content(self, ctx, frame);
+            navigator(self, ctx, frame);
 
             if ctx.input(|i| i.viewport().close_requested()) {
                 if self.has_unsaved_changes() {

@@ -1,5 +1,6 @@
 use crate::app_state::{AppState, PendingAction};
 use crate::commands::{new_file, open_file, save};
+use crate::navigator::Screen;
 use eframe::egui;
 
 pub fn app_menu_topbar(state: &mut AppState, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -18,6 +19,10 @@ pub fn app_menu_topbar(state: &mut AppState, ctx: &egui::Context, _frame: &mut e
                     on_save_button_clicked(state);
                 }
             });
+
+            if ui.button("Configuración").clicked() {
+                state.screen = Screen::Settings;
+            }
         });
     });
 }
