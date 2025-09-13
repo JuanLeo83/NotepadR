@@ -1,6 +1,7 @@
 use crate::app_state::{AppState, Language};
 use crate::navigator::Screen;
 use eframe::egui;
+use rfd::FileDialog;
 
 pub fn settings_screen(state: &mut AppState, ctx: &egui::Context, frame: &mut eframe::Frame) {
     settings_content(state, ctx, frame);
@@ -53,8 +54,13 @@ fn settings_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efra
                         ui.horizontal(|ui| {
                             let text_edit = ui.text_edit_singleline(&mut state.settings_state.unsaved.default_path);
                             if ui.button("Examinar...").clicked() {
-                                // Aquí iría el código para abrir un diálogo de selección de carpeta
-                                // y asignar el resultado a state.settings.default_path
+                                if let Some(path) = FileDialog::new()
+                                    .set_title("Abrir archivo")
+                                    .add_filter("Archivos de texto", &["txt"])
+                                    .add_filter("Todos los archivos", &["*"])
+                                    .pick_folder() {
+                                    state.settings_state.unsaved.default_path = path.to_string_lossy().into_owned();
+                                }
                             }
                         });
                     });
@@ -109,7 +115,7 @@ fn get_language(language: &Language) -> String {
 
 fn save(state: &mut AppState) {
     state.settings_state.current = state.settings_state.unsaved.clone();
-    
+
     if let Err(err) = state.save_settings_to_disk() {
         eprintln!("ERROR: saving config -> {:?}", err);
     }
