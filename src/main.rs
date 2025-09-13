@@ -17,11 +17,10 @@ fn main() -> eframe::Result {
         Box::new(|creation_context| {
             egui_extras::install_image_loaders(&creation_context.egui_ctx);
 
-            let mut app_state = app_state::AppState::default();
+            let mut app_state = app_state::AppState::new(creation_context);
 
             if let Err(err) = app_state.load_settings_from_disk() {
                 eprintln!("ERROR: loading app config -> {:?}", err);
-                // La aplicación continuará con la configuración por defecto
             }
             
             Ok(Box::new(app_state))

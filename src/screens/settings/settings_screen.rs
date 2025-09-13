@@ -1,4 +1,4 @@
-use crate::app_state::{AppState, Language};
+use crate::app_state::{get_available_fonts, AppState, Language};
 use crate::navigator::Screen;
 use eframe::egui;
 use rfd::FileDialog;
@@ -35,10 +35,13 @@ fn settings_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efra
                         egui::ComboBox::from_id_salt("Font")
                             .selected_text(&state.settings_state.unsaved.font_name)
                             .show_ui(ui, |ui| {
-                                ui.selectable_value(&mut state.settings_state.unsaved.font_name, "Arial".to_string(), "Arial");
-                                ui.selectable_value(&mut state.settings_state.unsaved.font_name, "Times New Roman".to_string(), "Times New Roman");
-                                ui.selectable_value(&mut state.settings_state.unsaved.font_name, "Courier New".to_string(), "Courier New");
-                                ui.selectable_value(&mut state.settings_state.unsaved.font_name, "Consolas".to_string(), "Consolas");
+                                for font_name in get_available_fonts() {
+                                    ui.selectable_value(
+                                        &mut state.settings_state.unsaved.font_name,
+                                        font_name.clone(),
+                                        font_name
+                                    );
+                                }
                             });
 
                         ui.label("Tamaño de fuente:");
@@ -47,7 +50,7 @@ fn settings_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efra
 
                     ui.add_space(10.0);
 
-                    // Defult path for files
+                    // Default path for files
                     ui.group(|ui| {
                         ui.set_width(ui.available_width());
                         ui.label("Ruta por defecto:");
@@ -55,9 +58,7 @@ fn settings_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efra
                             let text_edit = ui.text_edit_singleline(&mut state.settings_state.unsaved.default_path);
                             if ui.button("Examinar...").clicked() {
                                 if let Some(path) = FileDialog::new()
-                                    .set_title("Abrir archivo")
-                                    .add_filter("Archivos de texto", &["txt"])
-                                    .add_filter("Todos los archivos", &["*"])
+                                    .set_title("Seleccionar carpeta")
                                     .pick_folder() {
                                     state.settings_state.unsaved.default_path = path.to_string_lossy().into_owned();
                                 }
@@ -94,6 +95,10 @@ fn settings_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efra
                                 state.screen = Screen::Notepad;
                             }
 
+                            if ui.button("Aplicar").clicked() {
+                                save(state);
+                            }
+
                             if ui.button("Cancelar").clicked() {
                                 discard_changes(state);
                                 state.screen = Screen::Notepad;
@@ -105,22 +110,22 @@ fn settings_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efra
     });
 }
 
-fn get_language(language: &Language) -> String {
-    match language {
-        Language::English => "English".to_string(),
-        Language::Spanish => "Español".to_string(),
-        Language::French => "Français".to_string()
-    }
-}
-
 fn save(state: &mut AppState) {
     state.settings_state.current = state.settings_state.unsaved.clone();
 
     if let Err(err) = state.save_settings_to_disk() {
-        eprintln!("ERROR: saving config -> {:?}", err);
+        eprintln!("Error al guardar la configuración: {}", err);
     }
 }
 
 fn discard_changes(state: &mut AppState) {
-    state.settings_state.unsaved = state.settings_state.current.clone();
+    state.settings_state.unsaved = state.settings_state.current.clone()
+}
+
+fn get_language(language: &Language) -> &'static str {
+    match language {
+        Language::Spanish => "Español",
+        Language::English => "English",
+        Language::French => "Français",
+    }
 }

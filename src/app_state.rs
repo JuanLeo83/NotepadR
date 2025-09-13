@@ -3,6 +3,7 @@ use crate::shortcuts::shortcuts;
 use eframe::egui;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 pub struct AppState {
     pub screen: Screen,
@@ -29,7 +30,7 @@ impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |_ui| {
             self.apply_theme(ctx);
-            self.apply_font_size(ctx);
+            self.apply_font_settings(ctx);
 
             navigator(self, ctx, frame);
 
@@ -47,6 +48,18 @@ impl eframe::App for AppState {
 }
 
 impl AppState {
+    pub fn new(cc: &eframe::CreationContext) -> Self {
+        setup_custom_fonts(&cc.egui_ctx);
+
+        let mut app = Self::default();
+
+        if let Err(e) = app.load_settings_from_disk() {
+            println!("Error al cargar configuración: {}", e);
+        }
+
+        app
+    }
+
     pub fn has_unsaved_changes(&self) -> bool {
         match &self.notepad_state.file_content {
             Some(content) => self.notepad_state.current_content != *content,
@@ -89,13 +102,20 @@ impl AppState {
         }
     }
 
-    fn apply_font_size(&self, ctx: &egui::Context) {
+    fn apply_font_settings(&self, ctx: &egui::Context) {
         let mut style = (*ctx.style()).clone();
         let font_size = self.settings_state.current.font_size;
 
-        // Aplicar el tamaño de fuente a todos los estilos de texto
+        let font_family = match self.settings_state.current.font_name.as_str() {
+            "Roboto" => egui::FontFamily::Name("Roboto".into()),
+            "Inter" => egui::FontFamily::Name("Inter".into()),
+            "Fira Code" => egui::FontFamily::Name("Fira Code".into()),
+            _ => egui::FontFamily::Proportional,
+        };
+
         for (_text_style, font_id) in style.text_styles.iter_mut() {
             font_id.size = font_size;
+            font_id.family = font_family.clone();
         }
 
         ctx.set_style(style);
@@ -138,7 +158,7 @@ impl Default for SettingsState {
     fn default() -> Self {
         Self {
             current: Settings::default(),
-            unsaved: Settings::default()
+            unsaved: Settings::default(),
         }
     }
 }
@@ -157,11 +177,11 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             dark_mode: true,
-            font_name: "Arial".to_string(),
+            font_name: "Roboto".to_string(),
             font_size: 12.0,
             default_path: "".to_string(),
-            language: Language::English,
-            confirm_on_close: true
+            language: Language::Spanish,
+            confirm_on_close: true,
         }
     }
 }
@@ -171,4 +191,50 @@ pub enum Language {
     English,
     Spanish,
     French,
+}
+
+fn setup_custom_fonts(ctx: &egui::Context) {
+    let mut fonts = egui::FontDefinitions::default();
+
+    fonts.font_data.insert(
+        "Roboto".to_owned(),
+        Arc::from(egui::FontData::from_static(include_bytes!("../assets/fonts/Roboto-Regular.ttf"))),
+    );
+
+    fonts.font_data.insert(
+        "Inter".to_owned(),
+        Arc::from(egui::FontData::from_static(include_bytes!("../assets/fonts/Inter_18pt-Regular.ttf"))),
+    );
+
+    fonts.font_data.insert(
+        "Fira Code".to_owned(),
+        Arc::from(egui::FontData::from_static(include_bytes!("../assets/fonts/FiraCode-Regular.ttf"))),
+    );
+
+    fonts.families.insert(
+        egui::FontFamily::Name("Roboto".into()),
+        vec!["Roboto".to_owned()],
+    );
+
+    fonts.families.insert(
+        egui::FontFamily::Name("Inter".into()),
+        vec!["Inter".to_owned()],
+    );
+
+    fonts.families.insert(
+        egui::FontFamily::Name("Fira Code".into()),
+        vec!["Fira Code".to_owned()],
+    );
+
+    ctx.set_fonts(fonts);
+}
+
+
+pub fn get_available_fonts() -> Vec<String> {
+    vec![
+        "Por defecto".to_string(),
+        "Roboto".to_string(),
+        "Inter".to_string(),
+        "Fira Code".to_string(),
+    ]
 }
