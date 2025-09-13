@@ -1,12 +1,16 @@
 use crate::navigator::{navigator, Screen};
 use crate::shortcuts::shortcuts;
 use eframe::egui;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 pub struct AppState {
     pub screen: Screen,
     pub notepad_state: NotepadState,
     pub settings_state: SettingsState,
+
+    config_dir: String,
+    config_file: String,
 }
 
 impl Default for AppState {
@@ -15,6 +19,8 @@ impl Default for AppState {
             screen: Screen::Notepad,
             notepad_state: NotepadState::default(),
             settings_state: SettingsState::default(),
+            config_dir: "NotepadR".to_string(),
+            config_file: "config.json".to_string(),
         }
     }
 }
@@ -43,6 +49,33 @@ impl AppState {
             Some(content) => self.notepad_state.current_content != *content,
             None => !self.notepad_state.current_content.is_empty()
         }
+    }
+
+    pub fn save_settings_to_disk(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let config_dir = dirs::config_dir().ok_or("Config folder not found")?;
+        let app_config_dir = config_dir.join(&self.config_dir);
+        std::fs::create_dir_all(&app_config_dir)?;
+        let config_path = app_config_dir.join(&self.config_file);
+
+        let json = serde_json::to_string_pretty(&self.settings_state.current)?;
+        std::fs::write(config_path, json)?;
+
+        Ok(())
+    }
+
+    pub fn load_settings_from_disk(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let config_dir = dirs::config_dir().ok_or("Config folder not found")?;
+        let config_path = config_dir.join(&self.config_dir).join(&self.config_file);
+
+        if config_path.exists() {
+            let json = std::fs::read_to_string(config_path)?;
+            let settings: Settings = serde_json::from_str(&json)?;
+
+            self.settings_state.current = settings;
+            self.settings_state.unsaved = self.settings_state.current.clone();
+        }
+
+        Ok(())
     }
 }
 
@@ -78,16 +111,6 @@ pub struct SettingsState {
     pub unsaved: Settings,
 }
 
-#[derive(Clone)]
-pub struct Settings {
-    pub dark_mode: bool,
-    pub font_name: String,
-    pub font_size: f32,
-    pub default_path: String,
-    pub language: Language,
-    pub confirm_on_close: bool,
-}
-
 impl Default for SettingsState {
     fn default() -> Self {
         Self {
@@ -95,6 +118,16 @@ impl Default for SettingsState {
             unsaved: Settings::default()
         }
     }
+}
+
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+pub struct Settings {
+    pub dark_mode: bool,
+    pub font_name: String,
+    pub font_size: f32,
+    pub default_path: String,
+    pub language: Language,
+    pub confirm_on_close: bool,
 }
 
 impl Default for Settings {
@@ -110,7 +143,7 @@ impl Default for Settings {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub enum Language {
     English,
     Spanish,

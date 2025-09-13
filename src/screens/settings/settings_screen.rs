@@ -84,7 +84,7 @@ fn settings_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efra
                     ui.with_layout(egui::Layout::bottom_up(egui::Align::RIGHT), |ui| {
                         ui.horizontal(|ui| {
                             if ui.button("Guardar").clicked() {
-                                save();
+                                save(state);
                                 state.screen = Screen::Notepad;
                             }
 
@@ -107,10 +107,14 @@ fn get_language(language: &Language) -> String {
     }
 }
 
-fn save() {
-
+fn save(state: &mut AppState) {
+    state.settings_state.current = state.settings_state.unsaved.clone();
+    
+    if let Err(err) = state.save_settings_to_disk() {
+        eprintln!("ERROR: saving config -> {:?}", err);
+    }
 }
 
 fn discard_changes(state: &mut AppState) {
-    state.settings_state.unsaved = state.settings_state.current.clone()
+    state.settings_state.unsaved = state.settings_state.current.clone();
 }
