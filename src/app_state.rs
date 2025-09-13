@@ -6,13 +6,15 @@ use std::path::PathBuf;
 pub struct AppState {
     pub screen: Screen,
     pub notepad_state: NotepadState,
+    pub settings_state: SettingsState,
 }
 
 impl Default for AppState {
     fn default() -> Self {
         Self {
             screen: Screen::Notepad,
-            notepad_state: NotepadState::default()
+            notepad_state: NotepadState::default(),
+            settings_state: SettingsState::default(),
         }
     }
 }
@@ -69,4 +71,48 @@ impl Default for NotepadState {
             pending_action: PendingAction::None,
         }
     }
+}
+
+pub struct SettingsState {
+    pub current: Settings,
+    pub unsaved: Settings,
+}
+
+#[derive(Clone)]
+pub struct Settings {
+    pub dark_mode: bool,
+    pub font_name: String,
+    pub font_size: f32,
+    pub default_path: String,
+    pub language: Language,
+    pub confirm_on_close: bool,
+}
+
+impl Default for SettingsState {
+    fn default() -> Self {
+        Self {
+            current: Settings::default(),
+            unsaved: Settings::default()
+        }
+    }
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            dark_mode: true,
+            font_name: "Arial".to_string(),
+            font_size: 12.0,
+            default_path: "".to_string(),
+            language: Language::English,
+            confirm_on_close: true
+        }
+    }
+}
+
+#[derive(Clone, PartialEq)]
+pub enum Language {
+    English,
+    Spanish,
+    French,
 }
