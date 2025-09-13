@@ -1,6 +1,6 @@
 use crate::app_state::AppState;
-use crate::menu_topbar::{on_new_button_clicked, on_open_button_clicked, on_save_button_clicked};
 use crate::navigator::Screen;
+use crate::screens::notepad::menu_topbar::{on_new_button_clicked, on_open_button_clicked, on_save_button_clicked};
 use eframe::egui;
 
 pub fn shortcuts(ctx: &egui::Context, state: &mut AppState) {

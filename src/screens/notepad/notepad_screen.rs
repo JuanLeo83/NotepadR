@@ -1,6 +1,6 @@
 use crate::app_state::{AppState, PendingAction};
-use crate::menu_topbar::app_menu_topbar;
 use crate::screens::notepad::commands::{new_file, open_file, save};
+use crate::screens::notepad::menu_topbar::app_menu_topbar;
 use eframe::egui;
 
 pub fn notepad_screen(state: &mut AppState, ctx: &egui::Context, frame: &mut eframe::Frame) {
@@ -15,14 +15,14 @@ fn notepad_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efram
             .show_viewport(ui, |ui, _viewport| {
                 ui.push_id("main_text_editor", |ui| {
                     let text_edit_response = ui.add(
-                        egui::TextEdit::multiline(&mut state.current_content)
+                        egui::TextEdit::multiline(&mut state.notepad_state.current_content)
                             .frame(false)
                             .desired_width(f32::INFINITY)
                             .desired_rows(50)
                             .code_editor(),
                     );
 
-                    if state.show_save_modal {
+                    if state.notepad_state.show_save_modal {
                         text_edit_response.surrender_focus();
                     } else {
                         text_edit_response.request_focus();
@@ -35,7 +35,7 @@ fn notepad_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efram
 }
 
 fn show_unsaved_changes_modal(ctx: &egui::Context, state: &mut AppState) {
-    if state.show_save_modal {
+    if state.notepad_state.show_save_modal {
         egui::Window::new("Cambios sin guardar")
             .collapsible(false)
             .resizable(false)
@@ -45,19 +45,19 @@ fn show_unsaved_changes_modal(ctx: &egui::Context, state: &mut AppState) {
 
                 ui.horizontal(|ui| {
                     if ui.button("Descartar").clicked() {
-                        state.show_save_modal = false;
+                        state.notepad_state.show_save_modal = false;
                         execute_pending_action(ctx, state);
                     }
 
                     if ui.button("Cancelar").clicked() {
-                        state.show_save_modal = false;
-                        state.pending_action = PendingAction::None;
+                        state.notepad_state.show_save_modal = false;
+                        state.notepad_state.pending_action = PendingAction::None;
                     }
 
                     if ui.button("Guardar").clicked() {
-                        state.show_save_modal = false;
+                        state.notepad_state.show_save_modal = false;
                         save(state);
-                        state.current_content = String::new();
+                        state.notepad_state.current_content = String::new();
                         execute_pending_action(ctx, state);
                     }
                 });
@@ -65,7 +65,7 @@ fn show_unsaved_changes_modal(ctx: &egui::Context, state: &mut AppState) {
     }
 
     fn execute_pending_action(ctx: &egui::Context, state: &mut AppState) {
-        match state.pending_action {
+        match state.notepad_state.pending_action {
             PendingAction::None => {}
             PendingAction::NewFile => {
                 new_file(state);
@@ -77,6 +77,6 @@ fn show_unsaved_changes_modal(ctx: &egui::Context, state: &mut AppState) {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);
             }
         }
-        state.pending_action = PendingAction::None;
+        state.notepad_state.pending_action = PendingAction::None;
     }
 }
