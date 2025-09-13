@@ -29,6 +29,7 @@ impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |_ui| {
             self.apply_theme(ctx);
+            self.apply_font_size(ctx);
 
             navigator(self, ctx, frame);
 
@@ -86,6 +87,18 @@ impl AppState {
         } else {
             ctx.set_visuals(egui::Visuals::light());
         }
+    }
+
+    fn apply_font_size(&self, ctx: &egui::Context) {
+        let mut style = (*ctx.style()).clone();
+        let font_size = self.settings_state.current.font_size;
+
+        // Aplicar el tamaño de fuente a todos los estilos de texto
+        for (_text_style, font_id) in style.text_styles.iter_mut() {
+            font_id.size = font_size;
+        }
+
+        ctx.set_style(style);
     }
 }
 
