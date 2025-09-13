@@ -28,6 +28,8 @@ impl Default for AppState {
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |_ui| {
+            self.apply_theme(ctx);
+
             navigator(self, ctx, frame);
 
             if ctx.input(|i| i.viewport().close_requested()) {
@@ -76,6 +78,14 @@ impl AppState {
         }
 
         Ok(())
+    }
+
+    fn apply_theme(&self, ctx: &egui::Context) {
+        if self.settings_state.current.dark_mode {
+            ctx.set_visuals(egui::Visuals::dark());
+        } else {
+            ctx.set_visuals(egui::Visuals::light());
+        }
     }
 }
 
