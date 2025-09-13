@@ -1,6 +1,6 @@
 use crate::app_state::{AppState, PendingAction};
-use crate::commands::{new_file, open_file, save};
 use crate::navigator::Screen;
+use crate::screens::notepad::commands::{new_file, open_file, save};
 use eframe::egui;
 
 pub fn app_menu_topbar(state: &mut AppState, ctx: &egui::Context, _frame: &mut eframe::Frame) {

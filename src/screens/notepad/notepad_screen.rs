@@ -1,6 +1,6 @@
 use crate::app_state::{AppState, PendingAction};
-use crate::commands::{new_file, open_file, save};
 use crate::menu_topbar::app_menu_topbar;
+use crate::screens::notepad::commands::{new_file, open_file, save};
 use eframe::egui;
 
 pub fn notepad_screen(state: &mut AppState, ctx: &egui::Context, frame: &mut eframe::Frame) {

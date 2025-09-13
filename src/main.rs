@@ -1,7 +1,6 @@
 mod app_state;
 mod menu_topbar;
 mod navigator;
-mod commands;
 mod shortcuts;
 mod screens;
 

@@ -1,2 +1,2 @@
-pub mod notepad_screen;
-pub mod settings_screen;
+pub mod notepad;
+pub mod settings;
