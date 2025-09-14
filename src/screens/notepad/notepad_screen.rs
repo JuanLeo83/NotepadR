@@ -46,6 +46,7 @@ fn show_unsaved_changes_modal(ctx: &egui::Context, state: &mut AppState) {
                 ui.horizontal(|ui| {
                     if ui.button(state.text("notepad.unsaved.changes.dialog.button.discard")).clicked() {
                         state.notepad_state.show_save_modal = false;
+                        state.notepad_state.current_content = String::new();
                         execute_pending_action(ctx, state);
                     }
 
