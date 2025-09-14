@@ -79,7 +79,7 @@ fn settings_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efra
                         ui.set_width(ui.available_width());
                         ui.label(state.text("settings.default.path"));
                         ui.horizontal(|ui| {
-                            let text_edit = ui.text_edit_singleline(
+                            ui.text_edit_singleline(
                                 &mut state.settings_state.unsaved.default_path,
                             );
                             if ui.button(state.text("settings.default.path.button")).clicked() {

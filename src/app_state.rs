@@ -37,11 +37,13 @@ impl eframe::App for AppState {
 
             navigator(self, ctx, frame);
 
-            if ctx.input(|i| i.viewport().close_requested()) {
-                if self.has_unsaved_changes() {
-                    ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
-                    self.notepad_state.pending_action = PendingAction::CloseApp;
-                    self.notepad_state.show_save_modal = true;
+            if self.settings_state.current.confirm_on_close {
+                if ctx.input(|i| i.viewport().close_requested()) {
+                    if self.has_unsaved_changes() {
+                        ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+                        self.notepad_state.pending_action = PendingAction::CloseApp;
+                        self.notepad_state.show_save_modal = true;
+                    }
                 }
             }
 
