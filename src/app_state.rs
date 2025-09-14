@@ -2,6 +2,7 @@ use crate::navigator::{navigator, Screen};
 use crate::shortcuts::shortcuts;
 use eframe::egui;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -9,6 +10,7 @@ pub struct AppState {
     pub screen: Screen,
     pub notepad_state: NotepadState,
     pub settings_state: SettingsState,
+    pub strings: HashMap<String, String>,
 
     config_dir: String,
     config_file: String,
@@ -20,6 +22,7 @@ impl Default for AppState {
             screen: Screen::Notepad,
             notepad_state: NotepadState::default(),
             settings_state: SettingsState::default(),
+            strings: HashMap::new(),
             config_dir: "NotepadR".to_string(),
             config_file: "config.json".to_string(),
         }
@@ -54,7 +57,11 @@ impl AppState {
         let mut app = Self::default();
 
         if let Err(e) = app.load_settings_from_disk() {
-            println!("Error al cargar configuración: {}", e);
+            println!("ERROR: loading config -> {}", e);
+        }
+
+        if let Err(e) = app.load_language_strings() {
+            println!("ERROR: loading translations -> {}", e);
         }
 
         app
@@ -120,6 +127,27 @@ impl AppState {
 
         ctx.set_style(style);
     }
+
+    pub(crate) fn load_language_strings(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let lang = match self.settings_state.current.language {
+            Language::Spanish => "es",
+            Language::English => "en",
+            Language::French => "fr",
+        };
+
+        let path = format!("assets/strings/{}.json", lang);
+        let json = std::fs::read_to_string(&path)?;
+        self.strings = serde_json::from_str(&json)?;
+
+        Ok(())
+    }
+
+    pub fn text(&self, key: &str) -> String {
+        self.strings
+            .get(key)
+            .cloned()
+            .unwrap_or_else(|| key.to_string())
+    }
 }
 
 pub enum PendingAction {
@@ -180,7 +208,7 @@ impl Default for Settings {
             font_name: "Roboto".to_string(),
             font_size: 12.0,
             default_path: "".to_string(),
-            language: Language::Spanish,
+            language: Language::English,
             confirm_on_close: true,
         }
     }
@@ -232,7 +260,7 @@ fn setup_custom_fonts(ctx: &egui::Context) {
 
 pub fn get_available_fonts() -> Vec<String> {
     vec![
-        "Por defecto".to_string(),
+        "Default".to_string(),
         "Roboto".to_string(),
         "Inter".to_string(),
         "Fira Code".to_string(),

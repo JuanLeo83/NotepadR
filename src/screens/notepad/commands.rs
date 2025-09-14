@@ -12,15 +12,15 @@ pub fn new_file(state: &mut AppState) {
 
 pub fn open_file(state: &mut AppState) {
     let mut dialog = FileDialog::new()
-        .set_title("Abrir archivo")
-        .add_filter("Archivos de texto", &["txt"])
-        .add_filter("Todos los archivos", &["*"]);
+        .set_title(state.text("notepad.menu.file.open"))
+        .add_filter(state.text("notepad.file.dialog.filter.text.files"), &["txt"])
+        .add_filter(state.text("notepad.file.dialog.filter.all.files"), &["*"]);
 
     if !state.settings_state.current.default_path.is_empty() {
         dialog = dialog.set_directory(&state.settings_state.current.default_path);
     }
 
-        if let Some(path) = dialog.pick_file()
+    if let Some(path) = dialog.pick_file()
     {
         match fs::read_to_string(&path) {
             Ok(content) => {
@@ -30,7 +30,7 @@ pub fn open_file(state: &mut AppState) {
                     Some(state.notepad_state.current_content.clone());
                 state.notepad_state.pending_action = PendingAction::None;
             }
-            Err(e) => error!("Error al abrir el archivo: {}", e),
+            Err(e) => error!("ERROR: opening file -> {}", e),
         }
     }
 }
@@ -38,13 +38,13 @@ pub fn open_file(state: &mut AppState) {
 pub fn save(state: &mut AppState) {
     if let Some(path) = &state.notepad_state.current_file_path {
         match fs::write(path, &state.notepad_state.current_content) {
-            Ok(_) => info!("Archivo guardado en {:?}", path),
-            Err(e) => error!("Error al guardar el archivo: {}", e),
+            Ok(_) => info!("File saved in {:?}", path),
+            Err(e) => error!("ERROR: opening file -> {}", e),
         }
     } else {
         let mut dialog = FileDialog::new()
-            .set_title("Guardar archivo")
-            .add_filter("Archivos de texto", &["txt"]);
+            .set_title(state.text("notepad.menu.file.save"))
+            .add_filter(state.text("notepad.file.dialog.filter.text.files"), &["txt"]);
 
         if !state.settings_state.current.default_path.is_empty() {
             dialog = dialog.set_directory(&state.settings_state.current.default_path);
@@ -53,13 +53,13 @@ pub fn save(state: &mut AppState) {
         if let Some(path) = dialog.save_file() {
             match fs::write(&path, &state.notepad_state.current_content) {
                 Ok(_) => {
-                    info!("Archivo guardado en {:?}", path);
+                    info!("File saved in {:?}", path);
                     state.notepad_state.current_file_path = Some(path);
                     state.notepad_state.file_content =
                         Some(state.notepad_state.current_content.clone());
                     state.notepad_state.pending_action = PendingAction::None;
                 }
-                Err(e) => error!("Error al guardar el archivo: {}", e),
+                Err(e) => error!("ERROR: saving file -> {}", e),
             }
         }
     }

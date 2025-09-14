@@ -36,25 +36,25 @@ fn notepad_content(state: &mut AppState, ctx: &egui::Context, _frame: &mut efram
 
 fn show_unsaved_changes_modal(ctx: &egui::Context, state: &mut AppState) {
     if state.notepad_state.show_save_modal {
-        egui::Window::new("Cambios sin guardar")
+        egui::Window::new(state.text("notepad.unsaved.changes.dialog.title"))
             .collapsible(false)
             .resizable(false)
             .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
             .show(ctx, |ui| {
-                ui.label("Hay cambios sin guardar. ¿Qué deseas hacer?");
+                ui.label(state.text("notepad.unsaved.changes.dialog.message"));
 
                 ui.horizontal(|ui| {
-                    if ui.button("Descartar").clicked() {
+                    if ui.button(state.text("notepad.unsaved.changes.dialog.button.discard")).clicked() {
                         state.notepad_state.show_save_modal = false;
                         execute_pending_action(ctx, state);
                     }
 
-                    if ui.button("Cancelar").clicked() {
+                    if ui.button(state.text("notepad.unsaved.changes.dialog.button.cancel")).clicked() {
                         state.notepad_state.show_save_modal = false;
                         state.notepad_state.pending_action = PendingAction::None;
                     }
 
-                    if ui.button("Guardar").clicked() {
+                    if ui.button(state.text("notepad.unsaved.changes.dialog.button.save")).clicked() {
                         state.notepad_state.show_save_modal = false;
                         save(state);
                         state.notepad_state.current_content = String::new();
