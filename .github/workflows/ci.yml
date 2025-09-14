@@ -33,14 +33,13 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Build (release)
-        run: cargo build --release
-
-      - name: Run tests
-        run: cargo test --all --no-fail-fast
-
       - name: Run clippy
         run: |
           rustup component add clippy || true
           cargo clippy --all-targets -- -D warnings
 
+      - name: Run tests
+        run: cargo test --all --no-fail-fast
+
+      - name: Build (release)
+        run: cargo build --release

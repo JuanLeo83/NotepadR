@@ -1,6 +1,6 @@
 [package]
 name = "Notepad"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Juan Leo"]
 edition = "2024"
 description = "A simple notepad application built with eframe and egui."
