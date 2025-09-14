@@ -1,7 +1,9 @@
 use crate::navigator::{navigator, Screen};
 use crate::shortcuts::shortcuts;
 use eframe::egui;
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -137,10 +139,18 @@ impl AppState {
             Language::French => "fr",
         };
 
-        let path = format!("assets/strings/{}.json", lang);
-        let json = std::fs::read_to_string(&path)?;
-        self.strings = serde_json::from_str(&json)?;
+        let json_value = &STRINGS[lang];
 
+        let mut string_map = HashMap::new();
+        if let Some(obj) = json_value.as_object() {
+            for (key, value) in obj {
+                if let Some(text) = value.as_str() {
+                    string_map.insert(key.clone(), text.to_string());
+                }
+            }
+        }
+
+        self.strings = string_map;
         Ok(())
     }
 
@@ -216,6 +226,18 @@ impl Default for Settings {
     }
 }
 
+const EN_JSON: &str = include_str!("../assets/strings/en.json");
+const ES_JSON: &str = include_str!("../assets/strings/es.json");
+const FR_JSON: &str = include_str!("../assets/strings/fr.json");
+
+static STRINGS: Lazy<HashMap<&'static str, Value>> = Lazy::new(|| {
+    let mut m = HashMap::new();
+    m.insert("en", serde_json::from_str(EN_JSON).expect("invalid en.json"));
+    m.insert("es", serde_json::from_str(ES_JSON).expect("invalid es.json"));
+    m.insert("fr", serde_json::from_str(FR_JSON).expect("invalid fr.json"));
+    m
+});
+
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub enum Language {
     English,
@@ -258,7 +280,6 @@ fn setup_custom_fonts(ctx: &egui::Context) {
 
     ctx.set_fonts(fonts);
 }
-
 
 pub fn get_available_fonts() -> Vec<String> {
     vec![
